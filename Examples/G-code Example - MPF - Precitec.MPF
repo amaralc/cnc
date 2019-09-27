@@ -1,0 +1,49 @@
+;Author: 
+;Description: It writes the letters previously defined as subprograms.
+;Data: 01/11/2018
+ 
+;General Configurations-----------------------------------
+N100 $AC_TIMER[1]=0		;
+N100 G91			;
+N110 G71			; 
+N110 G64			;
+N130 M55			;
+N140 G4F4			;
+N150 M0				;
+
+;R-Parameters---------------------------------------------
+N160 R0=1500			;
+N170 R1=20			;
+N180 R2=10			;
+N190 R3=5			;
+N200 R4=3000			;
+N210 R5=4000            	;
+N220 R6=9 			;
+
+;Process Start-up------------------------------------------
+N230 M56			;
+N240 G4F4			;
+N241 M76			;CROSSJET!!!!!!!!!!
+N250 M0				;
+
+;Laser On and Path-----------------------------------------
+
+N260 H1=R0				;
+N270 LETTER_L				;
+N280 LETTER_M				;
+N290 LETTER_P				;
+N300 G0 Y=-(R2+R3)			;
+N310 LETTER_L				;
+N320 LETTER_A				;
+N330 LETTER_S				;
+N340 LETTER_E				;
+N350 LETTER_R				;
+;N360 G1 X=-(R1+5) Y=(R6*(R2+R3)) F=R5 	;
+
+;End of Program--------------------------------------------
+N360 G4 F3			;
+N370 M77			;
+N380 M55			;
+N390 M30			;
+
+ 

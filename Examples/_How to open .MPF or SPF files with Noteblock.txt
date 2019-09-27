@@ -1,0 +1,7 @@
+Right click on a .mpf file;
+Left click in "Properties":
+Left click in "Others...";
+Left click in "More Apps";
+Left click in "Noteblock" and check the box "Always open .MPF with ...";
+Left click in "Ok";
+Repeat procedure for the .SPF extension.

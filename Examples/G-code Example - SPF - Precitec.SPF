@@ -1,0 +1,28 @@
+;Author:
+;Description: Letter I, it draws the letter I in accordance with the standart size and variables.
+
+N100 PROC LETTER_I			;
+
+;General Configurations-----------------------------------
+N110 G71				; 
+N120 G91				; 
+
+;Laser On and Path----------------------------------------
+
+N150 G1 Y=-R2/4	F=R5			;
+N160 ID=1 WHEN $AC_TIMER[1]>=0 DO M50 	;
+N170 G1 Y=-R2/4	F=R4			;
+N180 G1 Y=-R2/4				;
+N190 ID=1 WHEN $AC_TIMER[1]>=0 DO M51 	;
+N200 G1 Y=R2/4 F=R5			;
+N210 ID=1 WHEN $AC_TIMER[1]>=0 DO M50 	;
+N220 G1 X=-R1 F=R4			;
+N230 ID=1 WHEN $AC_TIMER[1]>=0 DO M51 	;
+N240 G1 Y=R2/4 F=R5			;
+N250 ID=1 WHEN $AC_TIMER[1]>=0 DO M50 	;	
+N260 G1 Y=-R2/2 F=R4			;
+N270 ID=1 WHEN $AC_TIMER[1]>=0 DO M51 	;
+N280 G0 X=R1 Y=-R3-R2/4			;
+
+;End of Subprogram----------------------------------------
+N290 RET				;
