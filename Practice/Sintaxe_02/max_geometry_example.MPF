@@ -1,0 +1,28 @@
+;Author: Calil Amaral
+;Description: It draws the part used as example by Max during the training
+;Data: 27/09/2019
+
+;General Configurations-----------------------------------
+N100 G91                ; set relative coordinates 
+
+;R-Parameters---------------------------------------------
+N110 R0 = 1500            ;
+N111 R5 = 0               ; layer count
+N112 R9 = 9               ; nmax number of layers
+
+;Laser On and Path----------------------------------------
+
+
+N120 WHILE[R5 < R9] DO1
+N130  G00 X05  Y05  F15  ; move from block origin to part origin
+N140  G01 X30            ; move 30mm on +X direction
+N150  G01 X60  Y10       ; move 60mm on +X direction and 10mm on +Y direction
+N160  G01 Y30            ; move 30mm on +Y direction
+N170  G02 X-30 Y30 R30   ; move clockwise on arc path, to -30,+30 relative endpoint
+N180  G01 X-35           ; move 35mm on -X direction
+N190  G03 X-25 Y-25 R25  ; move counter-clockwise on arc path, to -25, -25 relative endpoint
+N200  G01 Y-45           ; move 45mm on -Y direction
+N210  R5 = R5 + 1        ; increment layer
+N220 END1
+
+
