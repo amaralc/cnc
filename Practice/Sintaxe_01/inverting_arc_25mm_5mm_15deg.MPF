@@ -39,7 +39,7 @@ M3 S100 F100 (turn on spindle, at 100 rpm and 15mm/s feedrate)
 
 (h_count) #200 = #100 (current height)
 N130
-WHILE[#200 LE #106] DO1
+WHILE[#200 LE #106] DO 1
  
   (calculate new parameters)
   (Bx) #116 = #114                            (Bx = Ax)
@@ -50,26 +50,52 @@ WHILE[#200 LE #106] DO1
   (Dx) #120 = #118
   (Dy) #121 = #112 + #109 * COS[#113]
 
+  IF [#108 EQ #109] GOTO 140 (if R == r, goto 140)
 
+  IF [#108 GT #109] GOTO 150 (if R > r, goto 150)
 
-N140
-  (create the profile using relative positions with arcs AB and BC only)
-  G03 X[#116-#114] Y[#117-#115] R[#108]   (move around arc from point A to point B)
-  G01 X[#118-#116] Y[#119-#117]           (move in line from B to C)
-  G03 X[#120-#118] Y[#121-#119] R[#109]   (move around arc from point C to point D)
-  G01 X[#114-#120] Y[#115-#121]           (move in line from D to A)
+  IF [#108 LT #109] GOTO 160 (else, goto 160)
 
-N150
+  N140
+    (create the profile using relative positions with arcs AB and BC only)
+    G03 X[#116-#114] Y[#117-#115] R[#108]   (move around arc from point A to point B)
+    G01 X[#118-#116] Y[#119-#117]           (move in line from B to C)
+    G03 X[#120-#118] Y[#121-#119] R[#109]   (move around arc from point C to point D)
+    G01 X[#114-#120] Y[#115-#121]           (move in line from D to A)
+  GOTO 170
 
+  N150
+    (create the profile using relative positions including arcs AA' and B'B)
+    (A'x) #150 = #111
+    (A'y) #151 = #112 + #108
+    (B'x) #152 = #150
+    (B'y) #153 = #112 - #108
 
+    G03 X[#150-#114] Y[#151-#115] R[#108]   (move around arc from point A to point A')
+    G03 X[#152-#150] Y[#153-#151] R[#108]   (move around arc from point A' to point B')
+    G03 X[#116-#152] Y[#117-#153] R[#108]   (move around arc from point B' to point B)
+    G01 X[#118-#116] Y[#119-#117]           (move in line from B to C)
+    G03 X[#120-#118] Y[#121-#119] R[#109]   (move around arc from point C to point D)
+    G01 X[#114-#120] Y[#115-#121]           (move in line from D to A)
+  GOTO 170
 
+  N160
+    (create the profile using relative positions including arcs C'C and DD')
+    (C'x) #160 = #111 + #110 - #109 * SIN[#113]
+    (C'y) #161 = #112 - #109 * COS[#113]
+    (D'x) #162 = #160
+    (D'y) #163 = #161 + 2 * #109 * COS[#113]
 
-N160
+    G03 X[#116-#114] Y[#117-#115] R[#108]   (move around arc from point A to point B)
+    G01 X[#160-#116] Y[#161-#117]           (move in line from B to C')
+    G03 X[#118-#160] Y[#119-#161] R[#109]   (move around arc from point C' to point C)
+    G03 X[#120-#118] Y[#121-#119] R[#109]   (move around arc from point C to point D)
+    G03 X[#162-#120] Y[#163-#121] R[#109]   (move around arc from point D to point D')
+    G01 X[#114-#162] Y[#115-#163]           (move in line from D' to A)
 
+  GOTO 170
 
-
-
-N170
+  N170
   (calculate new parameters for next loop)
   (R0) #108 = #108 - #107   (R = R - dR)
   (r0) #109 = #109 + #107   (r = r + dr)
@@ -87,4 +113,4 @@ N170
   (update counter)
   #200 = #200 + #100
 
-END1
+END 1
