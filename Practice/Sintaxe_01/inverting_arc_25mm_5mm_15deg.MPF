@@ -1,0 +1,47 @@
+(Author: Calil Amaral)
+(Description: It draws a cone of 10mm diameter and 10mm height)
+(Data: 27/09/2019)
+
+(General Configurations-----------------------------------)
+N100
+G91 (relative coordinates)
+
+(R-Parameters---------------------------------------------)
+N110
+
+(dz)    #100 = 0.5 (layer height) (dz)
+(a)     #101 = 15 (maximum overhang angle [deg]) (alpha)
+(tan a) #102 = TAN[#102] (tg alpha)
+(R)     #103 = 15  (maximum radius)
+(rscale)#104 = 0.2 (rscale min to max)
+(r)     #105 = #104 * #103 (minimum radius)
+
+(dr = dz * tan(angle))
+(h)     #106 = [#103/#102 - #105/#102] (total height) (h)
+(dr)    #107 = #100 * #102 (dr)
+(R0)    #108 = #103 (current maximum radius)
+(r0)    #107 = #105 (current minimum radius)
+
+(positions)
+(C)     #108 = 2*#103 (center distance)
+(xCR)   #109 = 2*#103 (x position of bigger arc in the beggining)
+(yCR)   #110 = 2*#103 (y position of bigger arc in the beggining)
+
+(First calculations)
+(phi) #111 = ASIN[ [#108-#107]/#108 ]
+(Ax)  #112 = #109 + #108*SIN[#111]
+(Ay)  #113 = #110 + #108*COS[#111]
+
+(Laser On and Path----------------------------------------)
+N120
+G00 X [#112] Y [#113] (move head to initial position P(2*r0,r0))
+M3 S100 F100 (turn on spindle, at 100 rpm and 15mm/s feedrate)
+
+N130
+WHILE[#106 GT 0] DO1
+ 
+  G03 X[-2*#106] R[#106]
+  G03 X[2*#106] R[#106]
+  G01 X[-#105] Z[#100]
+  #106 = #106 - #105
+END1
