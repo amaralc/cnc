@@ -50,11 +50,11 @@ WHILE[#200 LE #106] DO 1
   (Dx) #120 = #118
   (Dy) #121 = #112 + #109 * COS[#113]
 
-  IF [#108 EQ #109] GOTO 140 (if R == r, goto 140)
+  IF [#108 EQ #109] THEN GOTO 140 (if R == r, goto 140)
 
-  IF [#108 GT #109] GOTO 150 (if R > r, goto 150)
+  IF [#108 GT #109] THEN GOTO 150 (if R > r, goto 150)
 
-  IF [#108 LT #109] GOTO 160 (else, goto 160)
+  IF [#108 LT #109] THEN GOTO 160 (else, goto 160)
 
   N140
     (create the profile using relative positions with arcs AB and BC only)
