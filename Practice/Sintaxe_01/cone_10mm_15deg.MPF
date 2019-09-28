@@ -21,11 +21,11 @@ N110
 
 (Laser On and Path----------------------------------------)
 N120
-G00 X [2*#106] Y #106 Z[#100] (move head to initial position P(2*r0,r0))
+G00 X [2*#106] Y #106 (move head to initial position P(2*r0,r0))
 M3 S100 F100 (turn on spindle, at 100 rpm and 15mm/s feedrate)
 
 N130
-WHILE[#106 GT 0] DO1	
+WHILE[#106 GT 0] DO1
   G03 X[-2*#106] R[#106]
   G03 X[2*#106] R[#106]
   G01 X[-#105] Z[#100]
