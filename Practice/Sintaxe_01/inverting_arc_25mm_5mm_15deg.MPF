@@ -9,14 +9,14 @@ G91 (relative coordinates)
 (R-Parameters---------------------------------------------)
 N110
 
-(dz)    #100 = 0.5 (layer height) (dz)
+(dz)    #100 = 1 (layer height) (dz)
 (a)     #101 = 15 (maximum overhang angle [deg]) (alpha)
-(tan a) #102 = TAN[#102] (tg alpha)
+(tan a) #102 = TAN[#101] (tg alpha)
 (R)     #103 = 15  (maximum radius)
 (rscale)#104 = 0.2 (rscale min to max)
 (r)     #105 = #104 * #103 (minimum radius)
 
-(dr = dz * tan(angle))
+(dr = dz * tan angle)
 (h)     #106 = [#103/#102 - #105/#102] (total height) (h)
 (dr)    #107 = #100 * #102 (dr)
 (R0)    #108 = #103 (current maximum radius)
@@ -50,12 +50,26 @@ WHILE[#200 LE #106] DO1
   (Dx) #120 = #118
   (Dy) #121 = #112 + #109 * COS[#113]
 
-  (create the profile using relative positions)
-  G03 X[#117-#115] Y[#117-#115] R[#108]   (move around arc from point A to point B)
+
+
+N140
+  (create the profile using relative positions with arcs AB and BC only)
+  G03 X[#116-#114] Y[#117-#115] R[#108]   (move around arc from point A to point B)
   G01 X[#118-#116] Y[#119-#117]           (move in line from B to C)
   G03 X[#120-#118] Y[#121-#119] R[#109]   (move around arc from point C to point D)
   G01 X[#114-#120] Y[#115-#121]           (move in line from D to A)
 
+N150
+
+
+
+
+N160
+
+
+
+
+N170
   (calculate new parameters for next loop)
   (R0) #108 = #108 - #107   (R = R - dR)
   (r0) #109 = #109 + #107   (r = r + dr)
@@ -69,5 +83,8 @@ WHILE[#200 LE #106] DO1
 
   (reposition in new point A)
   G01 X[#114-#122] Y[#115-#123] Z[#100] (move to next point A using relative position)
+
+  (update counter)
+  #200 = #200 + #100
 
 END1
