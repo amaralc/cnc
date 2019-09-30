@@ -60,9 +60,9 @@ WHILE[#200 LE #106] DO 1
 
   N140
     (create the profile using relative positions with arcs AB and BC only)
-    G03 X[#116-#114] Y[#117-#115] R[#108]   (move around arc from point A to point B)
+    G03 X[#116-#114] Y[#117-#115] I[#111-#114] J[#112-#115]    (move around arc from point A to point B)
     G01 X[#118-#116] Y[#119-#117]           (move in line from B to C)
-    G03 X[#120-#118] Y[#121-#119] R[#109]   (move around arc from point C to point D)
+    G03 X[#120-#118] Y[#121-#119] I[#300-#118] J[#301-#119]    (move around arc from point C to point D)
     G01 X[#114-#120] Y[#115-#121]           (move in line from D to A)
   GOTO 170
 
@@ -106,7 +106,7 @@ WHILE[#200 LE #106] DO 1
   (y_A_i) #123 = #115 (store old value of Ay)
 
   (phi) #113 = ASIN[ [#109-#108]/#110 ]   (calculate new phi)
-  (x_A_i+1)  #114 = #111 + #108*SIN[#113]      (calculate new Ax)
+  (x_A_i+1)  #114 = #111 - #108*SIN[#113]      (calculate new Ax)
   (y_A_i+1)  #115 = #112 + #108*COS[#113]      (calculate new Ay)
 
   (reposition in new point A)
