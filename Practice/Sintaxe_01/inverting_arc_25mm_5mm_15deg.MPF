@@ -31,8 +31,8 @@ N110
 
 (First calculations)
 (phi) #113 = ASIN[ [#109-#108]/#110 ] (misalignment angle between vertical and tangent point)
-(x_A)  #114 = #111 - #108*SIN[#113] (x_A = x_o1 - sin[r1_i])
-(y_A)  #115 = #112 + #108*COS[#113] (y_A = y_o1 + cos[r1_i])
+(x_A)  #114 = #111 - #108*SIN[#113] (x_A = x_o1 - r1_i * sin[phi])
+(y_A)  #115 = #112 + #108*COS[#113] (y_A = y_o1 + r1_i * cos[phi])
 
 (Laser On and Path----------------------------------------)
 N120
