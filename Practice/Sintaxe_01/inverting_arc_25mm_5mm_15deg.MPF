@@ -73,7 +73,9 @@ WHILE[#200 LE #106] DO 1
   (x_A_i) #122 = #114 (store old value of Ax)
   (y_A_i) #123 = #115 (store old value of Ay)
   (phi) #113 = ASIN[ [#109-#108]/#110 ]   (calculate new phi)
-  (x_A_i+1)  #114 = #111 - #108*SIN[#113]      (calculate new Ax)
+  (x_o1)  #111 = #111 + #107 (x coordinate of center of arc 1 relative to global XYZ)
+  (x_o2)  #300 = #111 + #110 (x_o2 = x_o1 + C; x coordinate of center of arc 2)
+  (x_A_i+1)  #114 = #111 - #108*SIN[#113]     (calculate new Ax)
   (y_A_i+1)  #115 = #112 + #108*COS[#113]      (calculate new Ay)
 
   (reposition in new point A)
