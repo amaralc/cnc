@@ -1,0 +1,85 @@
+;(Author: Calil Amaral)
+;(Description: It draws a cone of 10mm diameter and 10mm height)
+;(Data: 27/09/2019)
+
+;(General Configurations-----------------------------------)
+N100
+G91 (relative coordinates)
+
+;(R-Parameters---------------------------------------------)
+N110
+#100 = 1              ;(dz) - (layer height)
+#101 = 15             ;(a) - (maximum overhang angle [deg]) (alpha)
+#103 = 3              ;(r1) - (left radius)
+#104 = 5              ;(rscale) - (rscale max:min)
+#111 = 15             ; (x_o1) - (x coordinate of center of arc 1 relative to global XYZ)
+
+#102 = TAN[#101]      ;(tan a) - (tg alpha)
+#105 = #104 * #103    ;(r2) - (right radius)
+
+;(dr = dz * tan angle)
+
+#106 = [#105/#102 - #103/#102]  ; (h) (total height) (h)
+#107 = #100 * #102              ; (dr)
+#108 = #103                     ; (r1_i) - (current left radius)
+#109 = #105                     ; (r2_i) - (current right radius)
+
+;(positions)
+#110 = 2*#105                   ; (C) - (center distance)
+#111 = #111                       ; (x_o1) - (x coordinate of center of arc 1 relative to global XYZ)
+#112 = #111                     ; (y_o1) - (y coordinate of center of arc 1)
+#300 = #111 + #110              ; (x_o2) - (x_o2 = x_o1 + C; x coordinate of center of arc 2)
+#301 = #112                     ; (y_o2) - (y_o2 = y_o1; y coordinate of center of arc 2)
+
+;(First calculations)
+#113 = ASIN[ [#109-#108]/#110 ] ; (phi) - (misalignment angle between vertical and tangent point)
+#114 = #111 - #108*SIN[#113]    ; (x_A) - (x_A = x_o1 - r1_i * sin[phi])
+#115 = #112 + #108*COS[#113]    ; (y_A) - (y_A = y_o1 + r1_i * cos[phi])
+
+;(Laser On and Path----------------------------------------)
+N120
+G00 X [#114] Y [#115] Z [#100]  ; (move head to initial position A)
+M3 S100 F100                    ; (turn on spindle, at 100 rpm and 15mm/s feedrate)
+
+
+#200 = 0                        ; (h_i) (current height)
+N130
+WHILE[#200 LT #106] DO 1        ; (while h_i <= h, do block 1)
+ 
+  ;(calculate new parameters)
+  #116 = #114                              ; (x_B) -> (x_B = x_A)
+  #117 = #112 - #108 * COS[#113]           ; (y_B) -> (y_B = y_o1 - r1_i * cos[phi])    
+  #118 = #300 - #109 * SIN[#113]           ; (x_C) -> (x_C = x_o2 - r2_i * sin[phi])
+  #119 = #301 - #109 * COS[#113]           ; (y_C)         
+  #120 = #118                              ; (x_D) 
+  #121 = #301 + #109 * COS[#113]           ; (y_D) 
+
+  N140
+    ;(create the profile using relative positions with arcs AB and BC only)
+    G03 X=[#116-#114] Y=[#117-#115] I=[#111-#114] J=[#112-#115]    ;(move around arc from point A to point B)
+    G01 X=[#118-#116] Y=[#119-#117]                              ;(move in line from B to C)
+    G03 X=[#120-#118] Y=[#121-#119] I=[#300-#118] J=[#301-#119]    ;(move around arc from point C to point D)
+    G01 X=[#114-#120] Y=[#115-#121]                              ;(move in line from D to A)
+  
+  N150
+
+  #122 = #114                             ; (x_A_i = x_A) (store old value of Ax)
+  #123 = #115                             ; (y_A_i = y_A) (store old value of Ay)
+
+  ;(calculate new parameters for next loop)  
+  #108 = #108 + #107                      ; (r1_i+1 = r1_i + dr)
+  #109 = #109 - #107                      ; (r2_i+1 = r2_i - dr)
+  #113 = ASIN[ [#109-#108]/#110 ]         ; (phi_i+1 = asin[[r2_i+1 - r1_i+1]/C]) (calculate new phi)
+  #111 = #111 + #107                      ; (x_o1_i+1 = x_o1_i + dr) (x coordinate of center of arc 1 relative to global XYZ)
+  #300 = #111 + #110                      ; (x_o2_i+1 = x_o1_i+1 + C) (x_o2 = x_o1 + C; x coordinate of center of arc 2)
+  #114 = #111 - #108*SIN[#113]            ; (x_A_i+1 = x_o1_i+1 - r1_i+1 * sin[phi_i+1])     (calculate new Ax)
+  #115 = #112 + #108*COS[#113]            ; (y_A_i+1 = y_o1 + r1_i+1 * cos[phi_i+1]) (calculate new Ay)
+
+  
+  ;(reposition in new point A)
+  G01 X[#114-#122] Y[#115-#123] Z[#100]   ; (move to next point A using relative position)
+
+  ;(update counter)
+  #200 = #200 + #100                      ; (h_i+1 = h_i + dz)
+
+END 1
