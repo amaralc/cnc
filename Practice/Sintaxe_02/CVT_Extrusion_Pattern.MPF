@@ -19,6 +19,8 @@
   R30 = 4                                 ; (dt) - (General delay time)
 
 ; (R - Calculated parameters)
+
+  ; (Calculate tangent of alpha and r2)
   R02 = TAN(R01)                          ;(tan a) - (tg alpha)
   R05 = R04 * R03                         ;(r2) - (right radius)
 
