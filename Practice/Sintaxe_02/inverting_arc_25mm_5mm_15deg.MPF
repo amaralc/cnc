@@ -38,7 +38,7 @@ N110
 
 ;(Laser On and Path----------------------------------------)
 N120
-G00 X [#114] Y [#115] Z [#100]  ; (move head to initial position A)
+G01 X [#114] Y [#115] F[]           ; (move head to initial position A)                     com laser desligado
 M3 S100 F100                    ; (turn on spindle, at 100 rpm and 15mm/s feedrate)
 
 
@@ -56,8 +56,8 @@ WHILE[#200 LT #106] DO 1        ; (while h_i <= h, do block 1)
 
   N140
     ;(create the profile using relative positions with arcs AB and BC only)
-    G03 X=[#116-#114] Y=[#117-#115] I=[#111-#114] J=[#112-#115]    ;(move around arc from point A to point B)
-    G01 X=[#118-#116] Y=[#119-#117]                              ;(move in line from B to C)
+    G03 X=[#116-#114] Y=[#117-#115] I=[#111-#114] J=[#112-#115]     ;(move around arc from point A to point B)
+    G01 X=[#118-#116] Y=[#119-#117]                               ;(move in line from B to C)
     G03 X=[#120-#118] Y=[#121-#119] I=[#300-#118] J=[#301-#119]    ;(move around arc from point C to point D)
     G01 X=[#114-#120] Y=[#115-#121]                              ;(move in line from D to A)
   
