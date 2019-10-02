@@ -4,16 +4,16 @@
  
 ;General Configurations-----------------------------------
 N100 $AC_TIMER[1]=0		;
-N100 G91			;
-N110 G71			; 
-N110 G64			;
-N130 M55			;
-N140 G4F4			;
-N150 M0				;
+N100 G91			; Relative coordinates
+N110 G71			; ? 
+N110 G64			; Continuous path mode
+N130 M55			; Move laser mirror to home
+N140 G4F4			; Delay in seconds (4s)
+N150 M0				; Wait for command
 
 ;R-Parameters---------------------------------------------
-N160 R0=1500			;
-N170 R1=20			;
+N160 R0=1500			; Laser Power
+N170 R1=20			  ; 
 N180 R2=10			;
 N190 R3=5			;
 N200 R4=3000			;
@@ -21,18 +21,18 @@ N210 R5=4000            	;
 N220 R6=9 			;
 
 ;Process Start-up------------------------------------------
-N230 M56			;
-N240 G4F4			;
-N241 M78			;Shielding Gas ON!!!!!!!!!!
-N250 M0				;
+N230 M56			; Move laser mirror to channel 1
+N240 G4F4			; Delay in seconds (4s)
+N241 M78			; Shielding Gas ON!!!!!!!!!! (gas 1 on)
+N250 M0				; Wait for command
 
 ;Laser On and Path-----------------------------------------
 
-N260 H1=R0				;
+N260 H1=R0				  ; Laser Power 
 N270 LETTER_L				;
 N280 LETTER_M				;
 N290 LETTER_P				;
-N300 G0 Y=-(R2+R3)			;
+N300 G0 Y=-(R2+R3)  ;
 N310 LETTER_L				;
 N320 LETTER_A				;
 N330 LETTER_S				;
@@ -41,9 +41,9 @@ N350 LETTER_R				;
 ;N360 G1 X=-(R1+5) Y=(R6*(R2+R3)) F=R5 	;
 
 ;End of Program--------------------------------------------
-N360 G4 F3			;
-N370 M79			;
-N380 M55			;
-N390 M30			;
+N360 G4 F3		; Delay in seconds
+N370 M79			; Shielding gas off (gas 1 off)
+N380 M55			; Move laser mirror to home
+N390 M30			; End of program
 
  

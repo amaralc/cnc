@@ -4,24 +4,24 @@
 N100 PROC LETTER_I			;
 
 ;General Configurations-----------------------------------
-N110 G71				; 
-N120 G91				; 
+N110 G71				; ?
+N120 G91				; Relative coordinates
 
 ;Laser On and Path----------------------------------------
 
 N150 G1 Y=-R2/4	F=R5			;
-N160 ID=1 WHEN $AC_TIMER[1]>=0 DO M50 	;
+N160 ID=1 WHEN $AC_TIMER[1]>=0 DO M50 	; Laser ON
 N170 G1 Y=-R2/4	F=R4			;
 N180 G1 Y=-R2/4				;
-N190 ID=1 WHEN $AC_TIMER[1]>=0 DO M51 	;
+N190 ID=1 WHEN $AC_TIMER[1]>=0 DO M51 	; Laser OFF
 N200 G1 Y=R2/4 F=R5			;
-N210 ID=1 WHEN $AC_TIMER[1]>=0 DO M50 	;
+N210 ID=1 WHEN $AC_TIMER[1]>=0 DO M50 	; Laser ON
 N220 G1 X=-R1 F=R4			;
-N230 ID=1 WHEN $AC_TIMER[1]>=0 DO M51 	;
+N230 ID=1 WHEN $AC_TIMER[1]>=0 DO M51 	; Laser OFF
 N240 G1 Y=R2/4 F=R5			;
-N250 ID=1 WHEN $AC_TIMER[1]>=0 DO M50 	;	
+N250 ID=1 WHEN $AC_TIMER[1]>=0 DO M50 	;	Laser ON
 N260 G1 Y=-R2/2 F=R4			;
-N270 ID=1 WHEN $AC_TIMER[1]>=0 DO M51 	;
+N270 ID=1 WHEN $AC_TIMER[1]>=0 DO M51 	; Laser OFF
 N280 G0 X=R1 Y=-R3-R2/4			;
 
 ;End of Subprogram----------------------------------------
