@@ -1,0 +1,103 @@
+; (Author: Calil Amaral)
+; (Description: It draws a geometry that resambles a pulley system, with radius r1 and r2 varying along Z)
+; (Data: 27/09/2019)
+
+; (General Configurations------------------------------------------------------)
+  G91 (relative coordinates)
+
+; (R - Input Geometric Parameters----------------------------------------------)
+  R00 = 1                                 ; (dz) - (layer height)
+  R01 = 15                                ; (a) - (maximum overhang angle) (alpha)                                         [DEG]
+  R03 = 3                                 ; (r1) - (left radius)
+  R04 = 5                                 ; (rscale) - (rscale max:min)
+  R11 = 15                                ; (x_o1) - (x coordinate of center of arc 1 relative to global XYZ)
+
+; (R - Input Processing Parameters --------------------------------------------)
+  R27 = 15                                ; (v) - (tangential speed                                                      UNIDADE?
+  R28 = 1500                              ; (P) - (Laser Power)                                                          UNIDADE? W? %?
+  R29 = 2                                 ; (n) - (Powder feeder disc RPM)                                               HOW RPM CONVERTS TO MASS FLOW RATE?
+  R30 = 4                                 ; (dt) - (General delay time)
+
+; (R - Calculated parameters)
+  R02 = TAN(R01)                          ;(tan a) - (tg alpha)
+  R05 = R04 * R03                         ;(r2) - (right radius)
+
+  ; (Calculate height, radius and radius variation from layer to layer from equation: dr = dz * tan angle)
+  R06 = (R05/R02 - R03/R02)               ; (h) (total height) (h)
+  R07 = R00 * R02                         ; (dr)
+  R08 = R03                               ; (r1_i) - (current left radius)
+  R09 = R05                               ; (r2_i) - (current right radius)
+
+  ; (Define coordinates of centers o1 and o2 ------------------------------------)
+  R10 = 2*R05                             ; (C) - (center distance)
+  R11 = R11                               ; (x_o1) - (x coordinate of center of arc 1 relative to global XYZ)
+  R12 = R11                               ; (y_o1) - (y coordinate of center of arc 1)
+  R24 = R11 + R10                         ; (x_o2) - (x_o2 = x_o1 + C; x coordinate of center of arc 2)
+  R25 = R12                               ; (y_o2) - (y_o2 = y_o1; y coordinate of center of arc 2)
+
+  ; (Calculate position of point A ----------------------------------------------)
+  R13 = ASIN( (R09-R08)/R10 )             ; (phi) - (misalignment angle between vertical and tangent point)
+  R14 = R11 - R08*SIN(R13)                ; (x_A) - (x_A = x_o1 - r1_i * sin(phi))
+  R15 = R12 + R08*COS(R13)                ; (y_A) - (y_A = y_o1 + r1_i * cos(phi))
+
+; (Move to initial position A -------------------------------------------------)
+  G01 X=(R14) Y=(R15) F=(R27)            ; (move head to initial position A with laser off)
+
+; (Setup initial process conditions ------------------------------------------)
+  M78                                  ; (Shielding gas ON)
+  M64                                  ; (Carrier gas ON) 
+  M66                                  ; (Powder feed on)
+  G4 F=(R30)                           ; (Delay 3s)
+
+; (Deposit material on the designated path for each layer )
+  R26 = 0                                ; (h_i) (current height)
+  WHILE(R26 < R06)                       ; (while h_i < h, do block 1)
+  
+    ; (Calculate new parameters)
+      R16 = R14                            ; (x_B) -> (x_B = x_A)
+      R17 = R12 - R08 * COS(R13)           ; (y_B) -> (y_B = y_o1 - r1_i * cos(phi))    
+      R18 = R24 - R09 * SIN(R13)           ; (x_C) -> (x_C = x_o2 - r2_i * sin(phi))
+      R19 = R25 - R09 * COS(R13)           ; (y_C)         
+      R20 = R18                            ; (x_D) 
+      R21 = R25 + R09 * COS(R13)           ; (y_D)   
+
+    ; (Laser ON ---------------------------------------------------------------)
+      ID=1 WHEN $AC_TIMER[1]>=0 DO M50
+
+    ; (Create the profile using relative positions with arcs AB and BC only)
+      G03 X=(R16-R14) Y=(R17-R15) I=(R11-R14) J=(R12-R15)     ;(move around arc from point A to point B)
+      G01 X=(R18-R16) Y=(R19-R17)                             ;(move in line from B to C)
+      G03 X=(R20-R18) Y=(R21-R19) I=(R24-R18) J=(R25-R19)     ;(move around arc from point C to point D)
+      G01 X=(R14-R20) Y=(R15-R21)                             ;(move in line from D to A)  
+
+    ; (Laser OFF --------------------------------------------------------------)
+      ID=1 WHEN $AC_TIMER[1]>=0 DO M51 	    ;
+
+    ; (Store old values of Ax and Ay for future calculations)
+      R22 = R14                             ; (x_A_i = x_A) (store old value of Ax)
+      R23 = R15                             ; (y_A_i = y_A) (store old value of Ay)
+
+    ; (Calculate new parameters for next loop)  
+      R08 = R08 + R07                       ; (r1_i+1 = r1_i + dr)
+      R09 = R09 - R07                       ; (r2_i+1 = r2_i - dr)
+      R13 = ASIN( (R09-R08)/R10 )           ; (phi_i+1 = asin((r2_i+1 - r1_i+1)/C)) (calculate new phi)
+      R11 = R11 + R07                       ; (x_o1_i+1 = x_o1_i + dr) (x coordinate of center of arc 1 relative to global XYZ)
+      R24 = R11 + R10                       ; (x_o2_i+1 = x_o1_i+1 + C) (x_o2 = x_o1 + C; x coordinate of center of arc 2)
+      R14 = R11 - R08*SIN(R13)              ; (x_A_i+1 = x_o1_i+1 - r1_i+1 * sin(phi_i+1))     (calculate new Ax)
+      R15 = R12 + R08*COS(R13)              ; (y_A_i+1 = y_o1 + r1_i+1 * cos(phi_i+1)) (calculate new Ay)
+    
+    ; (Reposition in new point A)
+      G01 X=(R14-R22) Y=(R15-R23) Z=(R00)   ; (move to next point A using relative position)
+
+    ; (Update counter)
+      R26 = R26 + R00                       ; (h_i+1 = h_i + dz)
+
+  ENDWHILE
+
+; (Setup final process conditions)
+  M67                                  ; (Powder feed OFF)
+  M65                                  ; (Carrier gas OFF)
+  M79                                  ; (Shielding gas OFF)   
+  
+; (End program)
+  M30                                     ; (End of program)
