@@ -1,5 +1,5 @@
 ;(Author: Calil Amaral)
-;(Description: It draws a cone of 10mm diameter and 10mm height)
+;(Description: It draws a geometry that resambles a pulley system, with radius r1 and r2 varying along Z)
 ;(Data: 27/09/2019)
 
 ;(General Configurations-----------------------------------)
@@ -8,78 +8,78 @@ G91 (relative coordinates)
 
 ;(R-Parameters---------------------------------------------)
 N110
-#100 = 1              ;(dz) - (layer height)
-#101 = 15             ;(a) - (maximum overhang angle [deg]) (alpha)
-#103 = 3              ;(r1) - (left radius)
-#104 = 5              ;(rscale) - (rscale max:min)
-#111 = 15             ; (x_o1) - (x coordinate of center of arc 1 relative to global XYZ)
+R00 = 1              ; (dz) - (layer height)
+R01 = 15             ; (a) - (maximum overhang angle (deg)) (alpha)
+R03 = 3              ; (r1) - (left radius)
+R04 = 5              ; (rscale) - (rscale max:min)
+R11 = 15             ; (x_o1) - (x coordinate of center of arc 1 relative to global XYZ)
+R27 = 15             ; (v) - (tangential speed)
 
-#102 = TAN[#101]      ;(tan a) - (tg alpha)
-#105 = #104 * #103    ;(r2) - (right radius)
+R02 = TAN(R01)      ;(tan a) - (tg alpha)
+R05 = R04 * R03    ;(r2) - (right radius)
 
-;(dr = dz * tan angle)
+;(Calculate height, radius and radius variation from layer to layer from equation: dr = dz * tan angle)
+R06 = (R05/R02 - R03/R02)     ; (h) (total height) (h)
+R07 = R00 * R02               ; (dr)
+R08 = R03                     ; (r1_i) - (current left radius)
+R09 = R05                     ; (r2_i) - (current right radius)
 
-#106 = [#105/#102 - #103/#102]  ; (h) (total height) (h)
-#107 = #100 * #102              ; (dr)
-#108 = #103                     ; (r1_i) - (current left radius)
-#109 = #105                     ; (r2_i) - (current right radius)
+;(Define coordinates of centers o1 and o2)
+R10 = 2*R05                   ; (C) - (center distance)
+R11 = R11                     ; (x_o1) - (x coordinate of center of arc 1 relative to global XYZ)
+R12 = R11                     ; (y_o1) - (y coordinate of center of arc 1)
+R24 = R11 + R10               ; (x_o2) - (x_o2 = x_o1 + C; x coordinate of center of arc 2)
+R25 = R12                     ; (y_o2) - (y_o2 = y_o1; y coordinate of center of arc 2)
 
-;(positions)
-#110 = 2*#105                   ; (C) - (center distance)
-#111 = #111                       ; (x_o1) - (x coordinate of center of arc 1 relative to global XYZ)
-#112 = #111                     ; (y_o1) - (y coordinate of center of arc 1)
-#300 = #111 + #110              ; (x_o2) - (x_o2 = x_o1 + C; x coordinate of center of arc 2)
-#301 = #112                     ; (y_o2) - (y_o2 = y_o1; y coordinate of center of arc 2)
-
-;(First calculations)
-#113 = ASIN[ [#109-#108]/#110 ] ; (phi) - (misalignment angle between vertical and tangent point)
-#114 = #111 - #108*SIN[#113]    ; (x_A) - (x_A = x_o1 - r1_i * sin[phi])
-#115 = #112 + #108*COS[#113]    ; (y_A) - (y_A = y_o1 + r1_i * cos[phi])
+;(Calculate position of point A)
+R13 = ASIN( (R09-R08)/R10 ) ; (phi) - (misalignment angle between vertical and tangent point)
+R14 = R11 - R08*SIN(R13)    ; (x_A) - (x_A = x_o1 - r1_i * sin(phi))
+R15 = R12 + R08*COS(R13)    ; (y_A) - (y_A = y_o1 + r1_i * cos(phi))
 
 ;(Laser On and Path----------------------------------------)
 N120
-G01 X [#114] Y [#115] F[]           ; (move head to initial position A)                     com laser desligado
-M3 S100 F100                    ; (turn on spindle, at 100 rpm and 15mm/s feedrate)
+G01 X=(R14) Y=(R15) F=(R27)           ; (move head to initial position A with laser off)
 
 
-#200 = 0                        ; (h_i) (current height)
+R26 = 0                               ; (h_i) (current height)
 N130
-WHILE[#200 LT #106] DO 1        ; (while h_i <= h, do block 1)
+WHILE(R26 < R06)                      ; (while h_i < h, do block 1)
  
   ;(calculate new parameters)
-  #116 = #114                              ; (x_B) -> (x_B = x_A)
-  #117 = #112 - #108 * COS[#113]           ; (y_B) -> (y_B = y_o1 - r1_i * cos[phi])    
-  #118 = #300 - #109 * SIN[#113]           ; (x_C) -> (x_C = x_o2 - r2_i * sin[phi])
-  #119 = #301 - #109 * COS[#113]           ; (y_C)         
-  #120 = #118                              ; (x_D) 
-  #121 = #301 + #109 * COS[#113]           ; (y_D) 
+  R16 = R14                            ; (x_B) -> (x_B = x_A)
+  R17 = R12 - R08 * COS(R13)           ; (y_B) -> (y_B = y_o1 - r1_i * cos(phi))    
+  R18 = R24 - R09 * SIN(R13)           ; (x_C) -> (x_C = x_o2 - r2_i * sin(phi))
+  R19 = R25 - R09 * COS(R13)           ; (y_C)         
+  R20 = R18                            ; (x_D) 
+  R21 = R25 + R09 * COS(R13)           ; (y_D) 
+
+  
 
   N140
     ;(create the profile using relative positions with arcs AB and BC only)
-    G03 X=[#116-#114] Y=[#117-#115] I=[#111-#114] J=[#112-#115]     ;(move around arc from point A to point B)
-    G01 X=[#118-#116] Y=[#119-#117]                               ;(move in line from B to C)
-    G03 X=[#120-#118] Y=[#121-#119] I=[#300-#118] J=[#301-#119]    ;(move around arc from point C to point D)
-    G01 X=[#114-#120] Y=[#115-#121]                              ;(move in line from D to A)
+    G03 X=(R16-R14) Y=(R17-R15) I=(R11-R14) J=(R12-R15)     ;(move around arc from point A to point B)
+    G01 X=(R18-R16) Y=(R19-R17)                             ;(move in line from B to C)
+    G03 X=(R20-R18) Y=(R21-R19) I=(R24-R18) J=(R25-R19)     ;(move around arc from point C to point D)
+    G01 X=(R14-R20) Y=(R15-R21)                             ;(move in line from D to A)
   
   N150
 
-  #122 = #114                             ; (x_A_i = x_A) (store old value of Ax)
-  #123 = #115                             ; (y_A_i = y_A) (store old value of Ay)
+  R22 = R14                             ; (x_A_i = x_A) (store old value of Ax)
+  R23 = R15                             ; (y_A_i = y_A) (store old value of Ay)
 
   ;(calculate new parameters for next loop)  
-  #108 = #108 + #107                      ; (r1_i+1 = r1_i + dr)
-  #109 = #109 - #107                      ; (r2_i+1 = r2_i - dr)
-  #113 = ASIN[ [#109-#108]/#110 ]         ; (phi_i+1 = asin[[r2_i+1 - r1_i+1]/C]) (calculate new phi)
-  #111 = #111 + #107                      ; (x_o1_i+1 = x_o1_i + dr) (x coordinate of center of arc 1 relative to global XYZ)
-  #300 = #111 + #110                      ; (x_o2_i+1 = x_o1_i+1 + C) (x_o2 = x_o1 + C; x coordinate of center of arc 2)
-  #114 = #111 - #108*SIN[#113]            ; (x_A_i+1 = x_o1_i+1 - r1_i+1 * sin[phi_i+1])     (calculate new Ax)
-  #115 = #112 + #108*COS[#113]            ; (y_A_i+1 = y_o1 + r1_i+1 * cos[phi_i+1]) (calculate new Ay)
-
+  R08 = R08 + R07                       ; (r1_i+1 = r1_i + dr)
+  R09 = R09 - R07                       ; (r2_i+1 = r2_i - dr)
+  R13 = ASIN( (R09-R08)/R10 )           ; (phi_i+1 = asin((r2_i+1 - r1_i+1)/C)) (calculate new phi)
+  R11 = R11 + R07                       ; (x_o1_i+1 = x_o1_i + dr) (x coordinate of center of arc 1 relative to global XYZ)
+  R24 = R11 + R10                       ; (x_o2_i+1 = x_o1_i+1 + C) (x_o2 = x_o1 + C; x coordinate of center of arc 2)
+  R14 = R11 - R08*SIN(R13)              ; (x_A_i+1 = x_o1_i+1 - r1_i+1 * sin(phi_i+1))     (calculate new Ax)
+  R15 = R12 + R08*COS(R13)              ; (y_A_i+1 = y_o1 + r1_i+1 * cos(phi_i+1)) (calculate new Ay)
   
   ;(reposition in new point A)
-  G01 X[#114-#122] Y[#115-#123] Z[#100]   ; (move to next point A using relative position)
+  G01 X(R14-R22) Y(R15-R23) Z(R00)      ; (move to next point A using relative position)
 
   ;(update counter)
-  #200 = #200 + #100                      ; (h_i+1 = h_i + dz)
+  R26 = R26 + R00                       ; (h_i+1 = h_i + dz)
 
-END 1
+ENDWHILE
