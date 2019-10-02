@@ -6,41 +6,41 @@
   G91                                     ; (relative coordinates)
 
 ; (R - Input Geometric Parameters----------------------------------------------)
-  R00 = 1                                 ; (dz) - (layer height)
-  R01 = 15                                ; (a) - (maximum overhang angle) (alpha)                                         [DEG]
-  R03 = 3                                 ; (r1) - (left radius)
-  R04 = 5                                 ; (rscale) - (rscale max:min)
-  R11 = 15                                ; (x_o1) - (x coordinate of center of arc 1 relative to global XYZ)
+  R00 = 1                                 ; (dz) - (layer height)               [mm] 
+  R01 = 15                                ; (a) - (maximum overhang angle)      [deg]
+  R03 = 3                                 ; (r1) - (left radius)                [mm] 
+  R04 = 5                                 ; (rscale) - (rscale max:min)         [-] 
+  R11 = 15                                ; (x_o1) - (x coordinate of center of arc 1 relative to global XYZ) [mm]
 
 ; (R - Input Processing Parameters --------------------------------------------)
-  R27 = 15                                ; (v) - (tangential speed                                                      UNIDADE?
-  R28 = 1500                              ; (P) - (Laser Power)                                                          UNIDADE? W? %?
-  R29 = 2                                 ; (n) - (Powder feeder disc RPM)                                               HOW RPM CONVERTS TO MASS FLOW RATE?
-  R30 = 4                                 ; (dt) - (General delay time)
+  R27 = 15                                ; (v) - (tangential speed)            [?]
+  R28 = 1500                              ; (P) - (Laser Power)                 [?]
+  R29 = 2                                 ; (n) - (Powder feeder disc RPM)      [RPM] HOW TO CONVERT TO MASS FLOW RATE?
+  R30 = 4                                 ; (dt) - (General delay time)         [s]
 
 ; (R - Calculated parameters)
 
   ; (Calculate tangent of alpha and r2)
-  R02 = TAN(R01)                          ;(tan a) - (tg alpha)
-  R05 = R04 * R03                         ;(r2) - (right radius)
+  R02 = TAN(R01)                          ; (tan a) - (tg alpha)               ;[-]
+  R05 = R04 * R03                         ; (r2) - (right radius)               [mm]
 
   ; (Calculate height, radius and radius variation from layer to layer from equation: dr = dz * tan angle)
-  R06 = (R05/R02 - R03/R02)               ; (h) (total height) (h)
-  R07 = R00 * R02                         ; (dr)
-  R08 = R03                               ; (r1_i) - (current left radius)
-  R09 = R05                               ; (r2_i) - (current right radius)
+  R06 = (R05/R02 - R03/R02)               ; (h) (total height)                 ;[mm]
+  R07 = R00 * R02                         ; (dr)                                [mm]
+  R08 = R03                               ; (r1_i) - (current left radius)      [mm]  
+  R09 = R05                               ; (r2_i) - (current right radius)     [mm]
 
   ; (Define coordinates of centers o1 and o2 ------------------------------------)
-  R10 = 2*R05                             ; (C) - (center distance)
-  R11 = R11                               ; (x_o1) - (x coordinate of center of arc 1 relative to global XYZ)
-  R12 = R11                               ; (y_o1) - (y coordinate of center of arc 1)
-  R24 = R11 + R10                         ; (x_o2) - (x_o2 = x_o1 + C; x coordinate of center of arc 2)
-  R25 = R12                               ; (y_o2) - (y_o2 = y_o1; y coordinate of center of arc 2)
+  R10 = 2*R05                             ; (C) - (center distance)             [mm]
+  R11 = R11                               ; (x_o1) - (x coordinate of center of arc 1 relative to global XYZ) [mm]
+  R12 = R11                               ; (y_o1) - (y coordinate of center of arc 1)  [mm]
+  R24 = R11 + R10                         ; (x_o2) - (x_o2 = x_o1 + C; x coordinate of center of arc 2) [mm]
+  R25 = R12                               ; (y_o2) - (y_o2 = y_o1; y coordinate of center of arc 2) [mm]
 
   ; (Calculate position of point A ----------------------------------------------)
-  R13 = ASIN( (R09-R08)/R10 )             ; (phi) - (misalignment angle between vertical and tangent point)
-  R14 = R11 - R08*SIN(R13)                ; (x_A) - (x_A = x_o1 - r1_i * sin(phi))
-  R15 = R12 + R08*COS(R13)                ; (y_A) - (y_A = y_o1 + r1_i * cos(phi))
+  R13 = ASIN( (R09-R08)/R10 )             ; (phi) - (misalignment angle between vertical and tangent point) [mm]
+  R14 = R11 - R08*SIN(R13)                ; (x_A) - (x_A = x_o1 - r1_i * sin(phi))  [mm]
+  R15 = R12 + R08*COS(R13)                ; (y_A) - (y_A = y_o1 + r1_i * cos(phi))  [mm]
 
 ; (Move to initial position A -------------------------------------------------)
   G01 X=(R14) Y=(R15) F=(R27)            ; (move head to initial position A with laser off)
@@ -56,12 +56,12 @@
   WHILE(R26 < R06)                       ; (while h_i < h, do block 1)
   
     ; (Calculate new parameters)
-      R16 = R14                            ; (x_B) -> (x_B = x_A)
-      R17 = R12 - R08 * COS(R13)           ; (y_B) -> (y_B = y_o1 - r1_i * cos(phi))    
-      R18 = R24 - R09 * SIN(R13)           ; (x_C) -> (x_C = x_o2 - r2_i * sin(phi))
-      R19 = R25 - R09 * COS(R13)           ; (y_C)         
-      R20 = R18                            ; (x_D) 
-      R21 = R25 + R09 * COS(R13)           ; (y_D)   
+      R16 = R14                            ; (x_B) -> (x_B = x_A)                     [mm]
+      R17 = R12 - R08 * COS(R13)           ; (y_B) -> (y_B = y_o1 - r1_i * cos(phi))  [mm]   
+      R18 = R24 - R09 * SIN(R13)           ; (x_C) -> (x_C = x_o2 - r2_i * sin(phi))  [mm]
+      R19 = R25 - R09 * COS(R13)           ; (y_C)                                    [mm]
+      R20 = R18                            ; (x_D)                                    [mm]
+      R21 = R25 + R09 * COS(R13)           ; (y_D)                                    [mm]
 
     ; (Laser ON ---------------------------------------------------------------)
       ID=1 WHEN $AC_TIMER[1]>=0 DO M50
@@ -76,17 +76,17 @@
       ID=1 WHEN $AC_TIMER[1]>=0 DO M51 	    ;
 
     ; (Store old values of Ax and Ay for future calculations)
-      R22 = R14                             ; (x_A_i = x_A) (store old value of Ax)
-      R23 = R15                             ; (y_A_i = y_A) (store old value of Ay)
+      R22 = R14                             ; (x_A_i = x_A) (store old value of Ax) [mm]
+      R23 = R15                             ; (y_A_i = y_A) (store old value of Ay) [mm]
 
     ; (Calculate new parameters for next loop)  
-      R08 = R08 + R07                       ; (r1_i+1 = r1_i + dr)
-      R09 = R09 - R07                       ; (r2_i+1 = r2_i - dr)
-      R13 = ASIN( (R09-R08)/R10 )           ; (phi_i+1 = asin((r2_i+1 - r1_i+1)/C)) (calculate new phi)
-      R11 = R11 + R07                       ; (x_o1_i+1 = x_o1_i + dr) (x coordinate of center of arc 1 relative to global XYZ)
-      R24 = R11 + R10                       ; (x_o2_i+1 = x_o1_i+1 + C) (x_o2 = x_o1 + C; x coordinate of center of arc 2)
-      R14 = R11 - R08*SIN(R13)              ; (x_A_i+1 = x_o1_i+1 - r1_i+1 * sin(phi_i+1))     (calculate new Ax)
-      R15 = R12 + R08*COS(R13)              ; (y_A_i+1 = y_o1 + r1_i+1 * cos(phi_i+1)) (calculate new Ay)
+      R08 = R08 + R07                       ; (r1_i+1 = r1_i + dr)              [mm]
+      R09 = R09 - R07                       ; (r2_i+1 = r2_i - dr)              [mm]
+      R13 = ASIN( (R09-R08)/R10 )           ; (phi_i+1 = asin((r2_i+1 - r1_i+1)/C)) (calculate new phi) [deg]
+      R11 = R11 + R07                       ; (x_o1_i+1 = x_o1_i + dr) (x coordinate of center of arc 1 relative to global XYZ) [mm]
+      R24 = R11 + R10                       ; (x_o2_i+1 = x_o1_i+1 + C) (x_o2 = x_o1 + C; x coordinate of center of arc 2)  [mm]
+      R14 = R11 - R08*SIN(R13)              ; (x_A_i+1 = x_o1_i+1 - r1_i+1 * sin(phi_i+1))     (calculate new Ax)           [mm]
+      R15 = R12 + R08*COS(R13)              ; (y_A_i+1 = y_o1 + r1_i+1 * cos(phi_i+1)) (calculate new Ay)                   [mm]
     
     ; (Reposition in new point A)
       G01 X=(R14-R22) Y=(R15-R23) Z=(R00)   ; (move to next point A using relative position)
