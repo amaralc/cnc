@@ -5,7 +5,7 @@
 ;General Configurations-----------------------------------
 N100 $AC_TIMER[1]=0		;
 N100 G91			; Relative coordinates
-N110 G71			; ? 
+N110 G71			; Set metric system coordinates
 N110 G64			; Continuous path mode
 N130 M55			; Move laser mirror to home
 N140 G4F4			; Delay in seconds (4s)

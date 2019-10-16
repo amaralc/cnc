@@ -3,7 +3,13 @@
 ; (Data: 27/09/2019)
 
 ; (General Configurations------------------------------------------------------)
-  G91                                     ; (relative coordinates)
+  N100 $AC_TIMER[1]=0   ;  
+  N100 G91			        ; Relative coordinates
+  N110 G71			        ; Set metric system 
+  N110 G64			        ; Continuous path mode
+  N130 M55			        ; Move laser mirror to home
+  N140 G4F4			        ; Delay in seconds (4s)
+  N150 M0				        ; Wait for command
 
 ; (R - Input Geometric Parameters----------------------------------------------)
   R00 = 1                                 ; (dz) - (layer height)               [mm] 
@@ -15,7 +21,7 @@
 ; (R - Input Processing Parameters --------------------------------------------)
   R27 = 15                                ; (v) - (tangential speed)            [?]
   R28 = 1500                              ; (P) - (Laser Power)                 [?]
-  R29 = 2                                 ; (n) - (Powder feeder disc RPM)      [RPM] HOW TO CONVERT TO MASS FLOW RATE?
+  R29 = 10                                 ; (%) - (Powder feeder disc RPM)      [RPM] HOW TO CONVERT TO MASS FLOW RATE?
   R30 = 4                                 ; (dt) - (General delay time)         [s]
 
 ; (R - Calculated parameters)
@@ -42,12 +48,20 @@
   R14 = R11 - R08*SIN(R13)                ; (x_A) - (x_A = x_o1 - r1_i * sin(phi))  [mm]
   R15 = R12 + R08*COS(R13)                ; (y_A) - (y_A = y_o1 + r1_i * cos(phi))  [mm]
 
+
+  ;Process Start-up------------------------------------------
+  N230 M56			; Move laser mirror to channel 1
+  N240 G4F4			; Delay in seconds (4s)
+  N241 M78			; Shielding Gas ON!!!!!!!!!! (gas 1 on)
+  N250 M0				; Wait for command
+
 ; (Move to initial position A -------------------------------------------------)
   G01 X=(R14) Y=(R15) F=(R27)            ; (move head to initial position A with laser off)
 
 ; (Setup initial process conditions ------------------------------------------)
-  M78                                  ; (Shielding gas ON)
   M64                                  ; (Carrier gas ON) 
+  M33                                  ; (Mixer ON)
+  H2 = R29                             ; (Set powder flow)
   M66                                  ; (Powder feed on)
   G4 F=(R30)                           ; (Delay 3s)
 
@@ -63,8 +77,8 @@
       R20 = R18                            ; (x_D)                                    [mm]
       R21 = R25 + R09 * COS(R13)           ; (y_D)                                    [mm]
 
-    ; (Laser ON ---------------------------------------------------------------)
-      ID=1 WHEN $AC_TIMER[1]>=0 DO M50
+    ; (Laser pointer ON ---------------------------------------------------------------)
+      ID=1 WHEN $AC_TIMER[1]>=0 DO M88
 
     ; (Create the profile using relative positions with arcs AB and BC only)
       G03 X=(R16-R14) Y=(R17-R15) I=(R11-R14) J=(R12-R15)     ;(move around arc from point A to point B)
@@ -73,7 +87,7 @@
       G01 X=(R14-R20) Y=(R15-R21)                             ;(move in line from D to A)  
 
     ; (Laser OFF --------------------------------------------------------------)
-      ID=1 WHEN $AC_TIMER[1]>=0 DO M51 	    ;
+      ID=1 WHEN $AC_TIMER[1]>=0 DO M89 	    ;
 
     ; (Store old values of Ax and Ay for future calculations)
       R22 = R14                             ; (x_A_i = x_A) (store old value of Ax) [mm]
@@ -98,8 +112,12 @@
 
 ; (Setup final process conditions)
   M67                                  ; (Powder feed OFF)
+  M63                                  ; (Mixer OFF)
   M65                                  ; (Carrier gas OFF)
-  M79                                  ; (Shielding gas OFF)   
-  
-; (End program)
-  M30                                     ; (End of program)
+ 
+
+;End of Program--------------------------------------------
+N360 G4 F3		; Delay in seconds
+N370 M79			; Shielding gas off (gas 1 off)
+N380 M55			; Move laser mirror to home
+N390 M30			; End of program
