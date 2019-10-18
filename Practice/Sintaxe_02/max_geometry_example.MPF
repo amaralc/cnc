@@ -10,7 +10,7 @@ N110 R0 = 1500            ;
 N111 R5 = 0               ; layer count
 N112 R9 = 9               ; nmax number of layers
 
-;Laser On and Path----------------------------------------
+;Laser On and Path-----------------------------------------
 
 
 N120 WHILE[R5 < R9] DO1

@@ -87,7 +87,7 @@
       G01 X=(R14-R20) Y=(R15-R21)                             ;(move in line from D to A)  
 
     ; (Laser OFF --------------------------------------------------------------)
-      ID=1 WHEN $AC_TIMER[1]>=0 DO M89 	    ;
+      ID=1 WHEN $AC_TIMER[1]>=0 DO M89 	    ; Desliga laser pointer
 
     ; (Store old values of Ax and Ay for future calculations)
       R22 = R14                             ; (x_A_i = x_A) (store old value of Ax) [mm]
@@ -117,7 +117,7 @@
  
 
 ;End of Program--------------------------------------------
-N360 G4 F3		; Delay in seconds
-N370 M79			; Shielding gas off (gas 1 off)
-N380 M55			; Move laser mirror to home
-N390 M30			; End of program
+  N360 G4 F3		; Delay in seconds
+  N370 M79			; Shielding gas off (gas 1 off)
+  N380 M55			; Move laser mirror to home
+  N390 M30			; End of program
