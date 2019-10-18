@@ -6,7 +6,7 @@
 N100
 G91 (relative coordinates)
 
-(R-Parameters---------------------------------------------)
+(R-Parameters----------------------------------------------)
 N110
 
 (dz)      #100 = 1 (layer height) (dz)
