@@ -9,11 +9,12 @@
   N110 G64			        ; Continuous path mode
 
 ; (R - Input Geometric Parameters----------------------------------------------)
-  ; (Área de trabalho: 4*R03 x 2*R03)
+  ; (Área de trabalho: 4*R05 x 2*R05)
+  R05 = 15                                ; (r2) - (right radius)               [mm]
+  R04 = 5                                 ; (rscale) - (rscale max:min)         [-]
   R00 = 1                                 ; (dz) - (layer height)               [mm] 
   R01 = 15                                ; (a) - (maximum overhang angle)      [deg]
-  R03 = 15                                ; (r1) - (left radius)                [mm] 
-  R04 = 3/15                              ; (rscale) - (rscale max:min)         [-] 
+  R03 = R05/R04                           ; (r1) - (left radius)                [mm]  
   R11 = 15                                ; (x_o1) - (x coordinate of center of arc 1 relative to global XYZ) [mm]
 
 ; (R - Input Processing Parameters --------------------------------------------)

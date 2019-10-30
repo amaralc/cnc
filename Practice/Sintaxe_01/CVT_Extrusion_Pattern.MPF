@@ -9,11 +9,13 @@ G91 (relative coordinates)
 (R-Parameters----------------------------------------------)
 N110
 
+(r2)      #105 = 15
+(rscale)  #104 = 5 (rscale max:min)
 (dz)      #100 = 1 (layer height) (dz)
 (a)       #101 = 15 (maximum overhang angle [deg]) (alpha)
 (tan a)   #102 = TAN[#101] (tg alpha)
-(r1)      #103 = 15  (left radius)
-(rscale)  #104 = 3/5 (rscale max:min)
+(r1)      #103 = #105/#104  (left radius)
+
 (r2)      #105 = #104 * #103 (right radius)
 
 (dr = dz * tan angle)
