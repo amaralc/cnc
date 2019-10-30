@@ -12,8 +12,8 @@ N110
 (dz)      #100 = 1 (layer height) (dz)
 (a)       #101 = 15 (maximum overhang angle [deg]) (alpha)
 (tan a)   #102 = TAN[#101] (tg alpha)
-(r1)      #103 = 3  (left radius)
-(rscale)  #104 = 5 (rscale max:min)
+(r1)      #103 = 15  (left radius)
+(rscale)  #104 = 3/5 (rscale max:min)
 (r2)      #105 = #104 * #103 (right radius)
 
 (dr = dz * tan angle)
